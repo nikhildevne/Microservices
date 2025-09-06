@@ -28,19 +28,36 @@ jobs:
           aws ecr get-login-password --region $AWS_REGION \
             | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
 
+      # ---------------- App1 ----------------
       - name: Build & push Docker image app1
         run: |
           docker build -t microservices-app1:latest ./app1
           docker tag microservices-app1:latest $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/microservices-app1:latest
           docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/microservices-app1:latest
 
+      - name: Register ECS Task Definition for app1
+        run: |
+          sed "s|<IMAGE>|$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/microservices-app1:latest|g" ecs-task-def-app1.json > app1-task-def.json
+          aws ecs register-task-definition --cli-input-json file://app1-task-def.json
+
+      - name: Deploy app1 to ECS
+        run: |
+          TASK_DEF_ARN=$(aws ecs describe-task-definition --task-definition app1-task --query 'taskDefinition.taskDefinitionArn' --output text)
+          aws ecs update-service --cluster my-ec2-cluster --service app1-service --task-definition $TASK_DEF_ARN --region $AWS_REGION
+
+      # ---------------- App2 ----------------
       - name: Build & push Docker image app2
         run: |
           docker build -t microservices-app2:latest ./app2
           docker tag microservices-app2:latest $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/microservices-app2:latest
           docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/microservices-app2:latest
 
-      - name: Deploy to ECS
+      - name: Register ECS Task Definition for app2
         run: |
-          aws ecs update-service --cluster my-ec2-cluster --service app1-service --force-new-deployment --region $AWS_REGION
-          aws ecs update-service --cluster my-ec2-cluster --service app2-service --force-new-deployment --region $AWS_REGION
+          sed "s|<IMAGE>|$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/microservices-app2:latest|g" ecs-task-def-app2.json > app2-task-def.json
+          aws ecs register-task-definition --cli-input-json file://app2-task-def.json
+
+      - name: Deploy app2 to ECS
+        run: |
+          TASK_DEF_ARN=$(aws ecs describe-task-definition --task-definition app2-task --query 'taskDefinition.taskDefinitionArn' --output text)
+          aws ecs update-service --cluster my-ec2-cluster --service app2-service --task-definition $TASK_DEF_ARN --region $AWS_REGION
