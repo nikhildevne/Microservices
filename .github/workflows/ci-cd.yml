@@ -17,18 +17,14 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # 2️⃣ Force working directory to repo root
-      - name: Set working directory
-        run: cd $GITHUB_WORKSPACE
-
-      # 3️⃣ Debug: list all files
+      # 2️⃣ Debug: list all files
       - name: Debug repo contents
         run: |
           echo "Current directory: $(pwd)"
           echo "Listing all files recursively:"
           ls -R
 
-      # 4️⃣ Configure AWS credentials
+      # 3️⃣ Configure AWS credentials
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
@@ -36,7 +32,7 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
-      # 5️⃣ Login to Amazon ECR
+      # 4️⃣ Login to Amazon ECR
       - name: Login to Amazon ECR
         run: |
           aws ecr get-login-password --region $AWS_REGION \
