@@ -1,0 +1,28 @@
+version: "3.9"
+
+services:
+  app1:
+    image: app1:latest
+    build: ./app1
+    ports:
+      - "3001:3000"
+    deploy:
+      replicas: 2
+      restart_policy:
+        condition: on-failure
+      update_config:
+        parallelism: 1
+        delay: 10s
+
+  app2:
+    image: app2:latest
+    build: ./app2
+    ports:
+      - "3002:3000"
+    deploy:
+      replicas: 2
+      restart_policy:
+        condition: on-failure
+      update_config:
+        parallelism: 1
+        delay: 10s
