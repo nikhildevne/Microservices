@@ -17,12 +17,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # 2️⃣ Debug: list all files
+      # 2️⃣ Debug: list all files in repo root
       - name: Debug repo contents
         run: |
           echo "Current directory: $(pwd)"
           echo "Listing all files recursively:"
-          ls -R
+          ls -R $GITHUB_WORKSPACE
 
       # 3️⃣ Configure AWS credentials
       - name: Configure AWS credentials
