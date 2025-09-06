@@ -17,14 +17,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # 2️⃣ Debug repo contents
-      - name: Debug repo contents
-        run: |
-          echo "Current directory: $(pwd)"
-          echo "Listing all files recursively:"
-          ls -R $GITHUB_WORKSPACE
-
-      # 3️⃣ Configure AWS credentials
+      # 2️⃣ Configure AWS credentials
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
@@ -32,7 +25,7 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
-      # 4️⃣ Login to Amazon ECR
+      # 3️⃣ Login to Amazon ECR
       - name: Login to Amazon ECR
         run: |
           aws ecr get-login-password --region $AWS_REGION \
@@ -47,9 +40,9 @@ jobs:
 
       - name: Register ECS Task Definition for app1
         run: |
-          echo "Replacing <IMAGE> in ECS task definition for app1"
-          sed "s|<IMAGE>|$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/microservices-app1:latest|g" $GITHUB_WORKSPACE/ecs/ecs-task-def-app1.json > app1-task-def.json
-          echo "Preview of app1-task-def.json:"
+          export IMAGE_URI=$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/microservices-app1:latest
+          envsubst < ecs/ecs-task-def-app1.json > app1-task-def.json
+          echo "Preview app1-task-def.json:"
           cat app1-task-def.json
           aws ecs register-task-definition --cli-input-json file://app1-task-def.json
 
@@ -67,9 +60,9 @@ jobs:
 
       - name: Register ECS Task Definition for app2
         run: |
-          echo "Replacing <IMAGE> in ECS task definition for app2"
-          sed "s|<IMAGE>|$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/microservices-app2:latest|g" $GITHUB_WORKSPACE/ecs/ecs-task-def-app2.json > app2-task-def.json
-          echo "Preview of app2-task-def.json:"
+          export IMAGE_URI=$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/microservices-app2:latest
+          envsubst < ecs/ecs-task-def-app2.json > app2-task-def.json
+          echo "Preview app2-task-def.json:"
           cat app2-task-def.json
           aws ecs register-task-definition --cli-input-json file://app2-task-def.json
 
