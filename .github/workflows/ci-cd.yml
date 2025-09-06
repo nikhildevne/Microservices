@@ -13,12 +13,18 @@ jobs:
       AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
 
     steps:
+      # 1️⃣ Checkout code
       - name: Checkout code
         uses: actions/checkout@v4
 
+      # 2️⃣ Debug: list all files
       - name: Debug repo contents
-        run: ls -R
+        run: |
+          echo "Current directory: $(pwd)"
+          echo "Listing all files recursively:"
+          ls -R
 
+      # 3️⃣ Configure AWS credentials
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
@@ -26,6 +32,7 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
+      # 4️⃣ Login to Amazon ECR
       - name: Login to Amazon ECR
         run: |
           aws ecr get-login-password --region $AWS_REGION \
@@ -40,7 +47,10 @@ jobs:
 
       - name: Register ECS Task Definition for app1
         run: |
+          echo "Replacing <IMAGE> in ECS task definition for app1"
           sed "s|<IMAGE>|$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/microservices-app1:latest|g" ./ecs-task-def-app1.json > app1-task-def.json
+          echo "Preview of app1-task-def.json:"
+          cat app1-task-def.json
           aws ecs register-task-definition --cli-input-json file://app1-task-def.json
 
       - name: Deploy app1 to ECS
@@ -57,7 +67,10 @@ jobs:
 
       - name: Register ECS Task Definition for app2
         run: |
+          echo "Replacing <IMAGE> in ECS task definition for app2"
           sed "s|<IMAGE>|$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/microservices-app2:latest|g" ./ecs-task-def-app2.json > app2-task-def.json
+          echo "Preview of app2-task-def.json:"
+          cat app2-task-def.json
           aws ecs register-task-definition --cli-input-json file://app2-task-def.json
 
       - name: Deploy app2 to ECS
