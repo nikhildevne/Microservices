@@ -21,7 +21,7 @@ jobs:
       - name: Debug repo contents
         run: |
           echo "Current directory: $(pwd)"
-          echo "Listing all files in repo:"
+          echo "Listing all files recursively:"
           ls -R $GITHUB_WORKSPACE
 
       # 3️⃣ Configure AWS credentials
