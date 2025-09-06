@@ -37,7 +37,7 @@ jobs:
 
       - name: Register ECS Task Definition for app1
         run: |
-          sed "s|<IMAGE>|$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/microservices-app1:latest|g" ecs-task-def-app1.json > app1-task-def.json
+          sed "s|<IMAGE>|$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/microservices-app1:latest|g" ./ecs-task-def-app1.json > app1-task-def.json
           aws ecs register-task-definition --cli-input-json file://app1-task-def.json
 
       - name: Deploy app1 to ECS
@@ -54,7 +54,7 @@ jobs:
 
       - name: Register ECS Task Definition for app2
         run: |
-          sed "s|<IMAGE>|$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/microservices-app2:latest|g" ecs-task-def-app2.json > app2-task-def.json
+          sed "s|<IMAGE>|$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/microservices-app2:latest|g" ./ecs-task-def-app2.json > app2-task-def.json
           aws ecs register-task-definition --cli-input-json file://app2-task-def.json
 
       - name: Deploy app2 to ECS
